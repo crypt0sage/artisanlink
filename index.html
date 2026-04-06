@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ArtisanLink - Verified Local Artisans</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --color-primary: #1e1e2e;
+            --color-secondary: #0f3460;
+            --color-accent: #00d4ff;
+            --color-accent-warm: #ff6b6b;
+            --color-text: #e0e0e0;
+            --color-text-muted: #a0a0a0;
+            --color-border: #2a2a3e;
+            --color-success: #00c896;
+            --color-warning: #ffa500;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            background: linear-gradient(135deg, #0f0f1e 0%, #1a1a2e 100%);
+            color: var(--color-text);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--color-primary); }
+        ::-webkit-scrollbar-thumb { background: var(--color-accent); border-radius: 4px; }
+
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeInDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideInRight { from { opacity: 0; transform: translateX(-30px); } to { opacity: 1; transform: translateX(0); } }
+        @keyframes glow { 0%, 100% { box-shadow: 0 0 20px rgba(0, 212, 255, 0.2); } 50% { box-shadow: 0 0 40px rgba(0, 212, 255, 0.4); } }
+        @keyframes pulse-soft { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+        @keyframes slideInUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+
+        .fade-in-up { animation: fadeInUp 0.6s ease-out forwards; }
+        .fade-in-down { animation: fadeInDown 0.5s ease-out forwards; }
+        .slide-in-right { animation: slideInRight 0.5s ease-out forwards; }
+
+        .card {
+            background: linear-gradient(135deg, rgba(30, 30, 46, 0.8) 0%, rgba(15, 52, 96, 0.6) 100%);
+            border: 1px solid var(--color-border);
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+            transition: var(--transition);
+        }
+
+        .card:hover {
+            border-color: var(--color-accent);
+            box-shadow: 0 8px 32px rgba(0, 212, 255, 0.15);
+            transform: translateY(-4px);
+        }
+
+        .btn {
+            padding: 10px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--color-accent) 0%, #00b8cc 100%);
+            color: #000;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0, 212, 255, 0.3);
+        }
+
+        .btn-secondary {
+            background: var(--color-secondary);
+            color: var(--color-accent);
+            border: 1px solid var(--color-accent);
+        }
+
+        .btn-secondary:hover {
+            background: var(--color-accent);
+            color: #000;
+        }
+
+        .input-field {
+            background: rgba(30, 30, 46, 0.6);
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            padding: 12px 16px;
+            color: var(--color-text);
+            transition: var(--transition);
+            font-size: 14px;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: var(--color-accent);
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.2);
+        }
+
+        .input-field::placeholder { color: var(--color-text-muted); }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 16px;
+        }
+
+        header {
+            background: rgba(15, 15, 30, 0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--color-border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 0;
+        }
+
+        .logo {
+            font-size: 22px;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--color-accent) 0%, #00b8cc 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-links { display: none; gap: 24px; list-style: none; }
+        .nav-links a { color: var(--color-text); text-decoration: none; font-size: 14px; transition: var(--transition); }
+        .nav-links a:hover { color: var(--color-accent); }
+
+        .nav-icons { display: flex; gap: 16px; align-items: center; }
+
+        .icon-btn {
+            background: transparent;
+            border: none;
+            color: var(--color-text);
+            cursor: pointer;
+            font-size: 18px;
+            transition: var(--transition);
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .icon-btn:hover { color: var(--color-accent); transform: scale(1.1); }
+
+        .mobile-menu { display: flex; gap: 8px; }
+
+        .screen {
+            display: none;
+            animation: fadeInUp 0.5s ease-out;
+        }
+
+        .screen.active { display: block; }
+
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 12px;
+            margin: 20px 0;
+        }
+
+        .category-btn {
+            background: var(--color-secondary);
+            border: 2px solid transparent;
+            border-radius: 10px;
+            padding: 16px;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+            color: var(--color-text);
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .category-btn:hover, .category-btn.active {
+            border-color: var(--color-accent);
+            background: rgba(0, 212, 255, 0.1);
+            color: var(--color-accent);
+        }
+
+        .artisan-card {
+            background: linear-gradient(135deg, rgba(30, 30, 46, 0.8) 0%, rgba(15, 52, 96, 0.6) 100%);
+            border: 1px solid var(--color-border);
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+            transition: var(--transition);
+            overflow: hidden;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .artisan-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            transition: var(--transition);
+        }
+
+        .artisan-card:hover { border-color: var(--color-accent); box-shadow: 0 8px 32px rgba(0, 212, 255, 0.15); transform: translateY(-4px); }
+        .artisan-card:hover img { transform: scale(1.05); }
+
+        .artisan-info {
+            padding: 16px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .artisan-name { font-weight: 700; font-size: 16px; margin-bottom: 4px; }
+        .artisan-skill { color: var(--color-text-muted); font-size: 13px; margin-bottom: 8px; }
+        .artisan-location { font-size: 12px; color: var(--color-text-muted); margin-bottom: 12px; display: flex; gap: 4px; }
+        .artisan-rating { display: flex; align-items: center; gap: 6px; margin-bottom: 12px; }
+        .artisan-price { font-size: 14px; font-weight: 600; color: var(--color-accent); margin-top: auto; margin-bottom: 12px; }
+        .artisan-actions { display: flex; gap: 8px; }
+        .artisan-actions button { flex: 1; padding: 8px 12px; font-size: 12px; }
+
+        .search-input-wrapper { position: relative; }
+        .search-input { width: 100%; padding: 14px 16px 14px 40px; border-radius: 10px; background: rgba(30, 30, 46, 0.6); border: 1px solid var(--color-border); color: var(--color-text); font-size: 15px; }
+        .search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--color-text-muted); pointer-events: none; }
+
+        .filter-panel {
+            background: var(--color-primary);
+            border: 1px solid var(--color-border);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .filter-group { margin-bottom: 20px; }
+        .filter-title { font-weight: 600; margin-bottom: 12px; font-size: 14px; color: var(--color-accent); }
+        .filter-options { display: flex; flex-direction: column; gap: 8px; }
+        .filter-option { display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 14px; }
+        .filter-option input { cursor: pointer; accent-color: var(--color-accent); }
+
+        .grid-2 { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+
+        .featured-section {
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.1) 0%, rgba(0, 100, 150, 0.05) 100%);
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            border-radius: 12px;
+            padding: 24px 16px;
+            margin: 30px 0;
+            text-align: center;
+        }
+
+        .hero {
+            padding: 40px 16px 60px;
+            text-align: center;
+        }
+
+        .hero-title {
+            font-size: 32px;
+            font-weight: 800;
+            margin-bottom: 12px;
+            background: linear-gradient(135deg, var(--color-accent) 0%, #00b8cc 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: fadeInDown 0.6s ease-out;
+        }
+
+        .hero-subtitle {
+            color: var(--color-text-muted);
+            font-size: 15px;
+            margin-bottom: 24px;
+            animation: fadeInUp 0.6s ease-out 0.1s forwards;
+            opacity: 0;
+        }
+
+        .profile-header {
+            position: relative;
+            height: 300px;
+            background: linear-gradient(135deg, var(--color-secondary) 0%, rgba(15, 52, 96, 0.4) 100%);
+            border-radius: 0 0 20px 20px;
+            overflow: hidden;
+            margin-bottom: 0;
+        }
+
+        .profile-header img { width: 100%; height: 100%; object-fit: cover; }
+
+        .profile-avatar {
+            position: absolute;
+            bottom: -40px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            border: 4px solid var(--color-primary);
+            object-fit: cover;
+        }
+
+        .profile-info {
+            padding: 60px 16px 24px;
+            text-align: center;
+        }
+
+        .profile-name { font-size: 24px; font-weight: 800; margin-bottom: 4px; }
+        .profile-skill { color: var(--color-accent); font-weight: 600; margin-bottom: 8px; font-size: 14px; }
+
+        .profile-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin: 24px 0;
+            padding: 20px;
+            background: rgba(30, 30, 46, 0.6);
+            border-radius: 12px;
+            border: 1px solid var(--color-border);
+        }
+
+        .stat { text-align: center; }
+        .stat-value { font-size: 22px; font-weight: 800; color: var(--color-accent); margin-bottom: 4px; }
+        .stat-label { font-size: 12px; color: var(--color-text-muted); }
+
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(30, 30, 46, 0.4);
+            border-radius: 12px;
+            border: 1px solid var(--color-border);
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: var(--color-accent);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .review-item {
+            padding: 16px;
+            background: rgba(15, 52, 96, 0.3);
+            border-radius: 10px;
+            margin-bottom: 12px;
+            border-left: 3px solid var(--color-accent);
+        }
+
+        .review-header { display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px; }
+        .review-author { font-weight: 600; font-size: 14px; }
+        .review-date { font-size: 12px; color: var(--color-text-muted); }
+        .review-text { font-size: 13px; color: var(--color-text-muted); line-height: 1.5; }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            align-items: flex-end;
+            animation: fadeInUp 0.3s ease-out;
+        }
+
+        .modal.active { display: flex; }
+
+        .modal-content {
+            background: var(--color-primary);
+            border: 1px solid var(--color-border);
+            border-radius: 20px 20px 0 0;
+            padding: 24px 16px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideInUp 0.3s ease-out;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .modal-title { font-size: 18px; font-weight: 700; }
+        .modal-close { background: transparent; border: none; color: var(--color-text); font-size: 24px; cursor: pointer; }
+        .modal-close:hover { color: var(--color-accent); }
+
+        .form-group { margin-bottom: 16px; }
+        .form-label { display: block; margin-bottom: 6px; font-size: 13px; font-weight: 600; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+        .dashboard-tabs {
+            display: flex;
+            gap: 0;
+            border-bottom: 1px solid var(--color-border);
+            margin-bottom: 24px;
+            overflow-x: auto;
+        }
+
+        .dashboard-tab {
+            padding: 12px 16px;
+            background: transparent;
+            border: none;
+            color: var(--color-text-muted);
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            border-bottom: 3px solid transparent;
+            white-space: nowrap;
+            font-size: 14px;
+        }
+
+        .dashboard-tab.active { color: var(--color-accent); border-bottom-color: var(--color-accent); }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        .booking-card {
+            background: rgba(30, 30, 46, 0.6);
+            border: 1px solid var(--color-border);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+            display: grid;
+            grid-template-columns: 80px 1fr auto;
+            gap: 16px;
+            align-items: center;
+        }
+
+        .booking-card img { width: 80px; height: 80px; border-radius: 10px; object-fit: cover; }
+        .booking-card-details { display: flex; flex-direction: column; gap: 4px; }
+        .booking-card-name { font-weight: 600; font-size: 15px; }
+        .booking-card-service { font-size: 13px; color: var(--color-text-muted); }
+
+        .booking-status {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 12px;
+            padding: 4px 8px;
+            background: rgba(0, 200, 150, 0.2);
+            color: var(--color-success);
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        .booking-status.pending { background: rgba(255, 165, 0, 0.2); color: var(--color-warning); }
+
+        footer {
+            background: rgba(15, 15, 30, 0.6);
+            border-top: 1px solid var(--color-border);
+            padding: 40px 16px 24px;
+            margin-top: 60px;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        .footer-section h4 { font-size: 14px; font-weight: 700; margin-bottom: 12px; color: var(--color-accent); }
+        .footer-section ul { list-style: none; }
+        .footer-section a { color: var(--color-text-muted); text-decoration: none; font-size: 13px; transition: var(--transition); }
+        .footer-section a:hover { color: var(--color-accent); }
+
+        .empty-state { text-align: center; padding: 60px 20px; }
+        .empty-state-icon { font-size: 48px; color: var(--color-text-muted); margin-bottom: 16px; opacity: 0.5; }
+        .empty-state-title { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+        .empty-state-text { color: var(--color-text-muted); font-size: 14px; margin-bottom: 20px; }
+
+        .onboarding {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, #0f0f1e 0%, #1a1a2e 100%);
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 24px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .onboarding.hidden { display: none; }
+        .onboarding-logo { font-size: 48px; margin-bottom: 16px; }
+        .onboarding h1 { font-size: 28px; font-weight: 800; margin-bottom: 8px; background: linear-gradient(135deg, var(--color-accent) 0%, #00b8cc 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .onboarding p { color: var(--color-text-muted); margin-bottom: 24px; max-width: 300px; }
+        .onboarding-input { width: 100%; max-width: 300px; padding: 12px 16px; border-radius: 8px; background: rgba(30, 30, 46, 0.6); border: 1px solid var(--color-border); color: var(--color-text); font-size: 15px; margin-bottom: 12px; }
+        .onboarding-btn { width: 100%; max-width: 300px; padding: 12px 24px; border-radius: 8px; background: linear-gradient(135deg, var(--color-accent) 0%, #00b8cc 100%); color: #000; border: none; font-weight: 600; cursor: pointer; }
+
+        .payment-steps {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 24px;
+            position: relative;
+        }
+
+        .payment-step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+            position: relative;
+        }
+
+        .payment-step::after {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            right: -50%;
+            height: 2px;
+            background: var(--color-border);
+        }
+
+        .payment-step:last-child::after { display: none; }
+        .payment-step.active::after { background: var(--color-accent); }
+
+        .payment-step-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--color-secondary);
+            border: 2px solid var(--color-border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 8px;
+            font-weight: 600;
+            z-index: 1;
+        }
+
+        .payment-step.active .payment-step-circle {
+            background: var(--color-accent);
+            color: #000;
+            border-color: var(--color-accent);
+        }
+
+        .payment-step-label { font-size: 12px; font-weight: 600; text-align: center; color: var(--color-text-muted); }
+        .payment-step.active .payment-step-label { color: var(--color-accent); }
+
+        @media (min-width: 768px) {
+            .nav-links { display: flex; }
+            .mobile-menu { display: none; }
+            .hero-title { font-size: 48px; }
+            .grid-2 { grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
+            .modal-content {
+                border-radius: 16px;
+                max-width: 600px;
+                max-height: 80vh;
+                margin: auto;
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                bottom: auto;
+                width: calc(100% - 32px);
+            }
+            .modal { align-items: center; justify-content: center; }
+        }
+
+        @media (max-width: 640px) {
+            .hero-title { font-size: 28px; }
+            .grid-2 { grid-template-columns: 1fr; }
+            .booking-card { grid-template-columns: 1fr; }
+            .booking-card img { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Onboarding -->
+    <div class="onboarding" id="onboarding">
+        <div class="onboarding-logo"><i class="fas fa-tools"></i></div>
+        <h1>Welcome to ArtisanLink</h1>
+        <p>Find and hire trusted local artisans in your area</p>
+        <input type="text" class="onboarding-input" id="onboardingName" placeholder="Your name">
+        <input type="tel" class="onboarding-input" id="onboardingPhone" placeholder="Phone number">
+        <select class="onboarding-input" id="onboardingCity">
+            <option value="">Select your city</option>
+            <option value="Lagos">Lagos</option>
+            <option value="Abuja">Abuja</option>
+            <option value="Nairobi">Nairobi</option>
+            <option value="Accra">Accra</option>
+        </select>
+        <button class="onboarding-btn" onclick="startApp()">Get Started</button>
+    </div>
+
+    <!-- Header -->
+    <header>
+        <div class="container">
+            <nav>
+                <div class="logo"><i class="fas fa-tools"></i> ArtisanLink</div>
+                <ul class="nav-links">
+                    <li><a href="#" onclick="goToScreen('home')">Home</a></li>
+                    <li><a href="#" onclick="goToScreen('browse')">Browse</a></li>
+                    <li><a href="#" onclick="goToScreen('dashboard')">Bookings</a></li>
+                </ul>
+                <div class="nav-icons">
+                    <button class="icon-btn" onclick="toggleChat()"><i class="fas fa-comments"></i></button>
+                    <button class="icon-btn" onclick="goToScreen('dashboard')"><i class="fas fa-user"></i></button>
+                    <div class="mobile-menu">
+                        <button class="icon-btn" onclick="goToScreen('home')"><i class="fas fa-home"></i></button>
+                        <button class="icon-btn" onclick="goToScreen('browse')"><i class="fas fa-list"></i></button>
+                    </div>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- HOME -->
+    <div class="screen active" id="home">
+        <div class="container">
+            <div class="hero">
+                <h1 class="hero-title">Find Trusted Local Artisans</h1>
+                <p class="hero-subtitle">Book verified plumbers, electricians, carpenters, and more</p>
+                <div class="search-container" style="max-width: 500px; margin: 30px auto;">
+                    <div class="search-input-wrapper">
+                        <i class="fas fa-search search-icon"></i>
+                        <input type="text" class="search-input" placeholder="Find an artisan..." onkeyup="filterHomeArtisans()">
+                    </div>
+                </div>
+            </div>
+            <div style="margin: 40px 0;">
+                <h2 style="font-size: 18px; font-weight: 700; margin-bottom: 16px;">Browse by Category</h2>
+                <div class="category-grid" id="categoryGrid"></div>
+            </div>
+            <div style="margin: 40px 0;">
+                <h2 style="font-size: 18px; font-weight: 700; margin-bottom: 16px;"><i class="fas fa-star" style="color: var(--color-warning);"></i> Top Rated</h2>
+                <div class="grid-2" id="topRatedGrid"></div>
+            </div>
+            <div class="featured-section">
+                <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 8px;">Need Help Urgently?</h3>
+                <p style="color: var(--color-text-muted); margin-bottom: 16px; font-size: 14px;">Get services in under 30 minutes</p>
+                <button class="btn btn-primary" onclick="goToScreen('browse')"><i class="fas fa-bolt"></i> Urgent Hire</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- BROWSE -->
+    <div class="screen" id="browse">
+        <div class="container" style="padding: 20px 16px;">
+            <div class="search-container">
+                <div class="search-input-wrapper">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" class="search-input" placeholder="Search artisans..." onkeyup="filterArtisans()">
+                </div>
+            </div>
+            <div class="filter-panel" style="margin-top: 16px;">
+                <div class="filter-group">
+                    <div class="filter-title">Skill</div>
+                    <div class="filter-options">
+                        <label class="filter-option"><input type="checkbox" value="Plumber" onchange="filterArtisans()"> Plumber</label>
+                        <label class="filter-option"><input type="checkbox" value="Electrician" onchange="filterArtisans()"> Electrician</label>
+                        <label class="filter-option"><input type="checkbox" value="Carpenter" onchange="filterArtisans()"> Carpenter</label>
+                        <label class="filter-option"><input type="checkbox" value="Tailor" onchange="filterArtisans()"> Tailor</label>
+                        <label class="filter-option"><input type="checkbox" value="Mechanic" onchange="filterArtisans()"> Mechanic</label>
+                        <label class="filter-option"><input type="checkbox" value="Painter" onchange="filterArtisans()"> Painter</label>
+                    </div>
+                </div>
+                <div class="filter-group">
+                    <div class="filter-title">Location</div>
+                    <div class="filter-options">
+                        <label class="filter-option"><input type="checkbox" value="Lagos" onchange="filterArtisans()"> Lagos</label>
+                        <label class="filter-option"><input type="checkbox" value="Abuja" onchange="filterArtisans()"> Abuja</label>
+                        <label class="filter-option"><input type="checkbox" value="Nairobi" onchange="filterArtisans()"> Nairobi</label>
+                        <label class="filter-option"><input type="checkbox" value="Accra" onchange="filterArtisans()"> Accra</label>
+                    </div>
+                </div>
+                <button class="btn btn-secondary" onclick="resetFilters()" style="width: 100%; margin-top: 16px;">Reset</button>
+            </div>
+            <div class="grid-2" id="artisansGrid"></div>
+            <div id="noResults" class="empty-state" style="display: none;">
+                <div class="empty-state-icon"><i class="fas fa-search"></i></div>
+                <h3 class="empty-state-title">No artisans found</h3>
+                <button class="btn btn-primary" onclick="resetFilters()">Clear Filters</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- PROFILE -->
+    <div class="screen" id="profile"><div id="profileContent"></div></div>
+
+    <!-- BOOKING -->
+    <div class="screen" id="booking">
+        <div class="container" style="padding: 20px 16px;">
+            <div style="display: flex; gap: 12px; margin-bottom: 24px;">
+                <button class="icon-btn" onclick="goToScreen('browse')"><i class="fas fa-arrow-left"></i></button>
+                <h1 style="font-size: 20px; font-weight: 700;">Book Service</h1>
+            </div>
+            <div class="payment-steps" id="paymentSteps">
+                <div class="payment-step active">
+                    <div class="payment-step-circle">1</div>
+                    <div class="payment-step-label">Details</div>
+                </div>
+                <div class="payment-step">
+                    <div class="payment-step-circle">2</div>
+                    <div class="payment-step-label">Confirm</div>
+                </div>
+                <div class="payment-step">
+                    <div class="payment-step-circle">3</div>
+                    <div class="payment-step-label">Payment</div>
+                </div>
+            </div>
+            <div id="bookingForm">
+                <div class="section">
+                    <div class="section-title"><i class="fas fa-calendar"></i> Details</div>
+                    <div class="form-group">
+                        <label class="form-label">Service Type</label>
+                        <select class="input-field">
+                            <option>Regular Maintenance</option>
+                            <option>Emergency Repair</option>
+                            <option>Installation</option>
+                        </select>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Date</label>
+                            <input type="date" class="input-field">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Time</label>
+                            <input type="time" class="input-field">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Location</label>
+                        <input type="text" class="input-field" placeholder="Your address">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Description</label>
+                        <textarea class="input-field" style="resize: vertical; min-height: 100px;"></textarea>
+                    </div>
+                </div>
+                <div class="section">
+                    <div class="section-title"><i class="fas fa-shield"></i> Secure Payment</div>
+                    <p style="font-size: 13px; color: var(--color-text-muted); margin-bottom: 12px;">Payment held in escrow until completion</p>
+                    <div style="display: flex; gap: 12px;">
+                        <button class="btn btn-secondary" onclick="goToScreen('browse')" style="flex: 1;">Cancel</button>
+                        <button class="btn btn-primary" onclick="completeBooking()" style="flex: 1;"><i class="fas fa-check"></i> Confirm</button>
+                    </div>
+                </div>
+            </div>
+            <div id="paymentEscrow" style="display: none;">
+                <div class="section">
+                    <div class="section-title"><i class="fas fa-lock"></i> Payment Status</div>
+                    <div style="background: rgba(0, 212, 255, 0.1); border: 1px solid rgba(0, 212, 255, 0.2); border-radius: 8px; padding: 20px; text-align: center; margin-bottom: 20px;">
+                        <div style="font-size: 14px; color: var(--color-text-muted); margin-bottom: 8px;">Status</div>
+                        <div style="font-size: 28px; font-weight: 800; color: var(--color-accent);">₦5,000 Held</div>
+                    </div>
+                    <button class="btn btn-secondary" onclick="goToScreen('dashboard')" style="width: 100%;"><i class="fas fa-arrow-left"></i> Dashboard</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- DASHBOARD -->
+    <div class="screen" id="dashboard">
+        <div class="container" style="padding: 20px 16px;">
+            <h1 style="font-size: 24px; font-weight: 800; margin-bottom: 20px;">My Dashboard</h1>
+            <div class="dashboard-tabs">
+                <button class="dashboard-tab active" onclick="switchDashboardTab(0)"><i class="fas fa-tasks"></i> Active</button>
+                <button class="dashboard-tab" onclick="switchDashboardTab(1)"><i class="fas fa-history"></i> History</button>
+                <button class="dashboard-tab" onclick="switchDashboardTab(2)"><i class="fas fa-bookmark"></i> Saved</button>
+                <button class="dashboard-tab" onclick="switchDashboardTab(3)"><i class="fas fa-wallet"></i> Payments</button>
+            </div>
+            <div class="tab-content active" id="tab0"><div id="activeBookings"></div></div>
+            <div class="tab-content" id="tab1"><div id="pastJobs"></div></div>
+            <div class="tab-content" id="tab2"><div id="savedArtisans"></div></div>
+            <div class="tab-content" id="tab3"><div id="paymentHistory"></div></div>
+        </div>
+    </div>
+
+    <!-- CHAT -->
+    <div class="modal" id="chatModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title"><i class="fas fa-comments"></i> Chat</div>
+                <button class="modal-close" onclick="toggleChat()"><i class="fas fa-times"></i></button>
+            </div>
+            <div id="chatMessages" style="height: 300px; overflow-y: auto; margin-bottom: 16px;"></div>
+            <div style="display: flex; gap: 8px;">
+                <input type="text" class="input-field" placeholder="Message..." style="flex: 1;">
+                <button class="btn btn-primary"><i class="fas fa-paper-plane"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>About</h4>
+                    <ul>
+                        <li><a href="#">Our Story</a></li>
+                        <li><a href="#">Blog</a></li>
+                        <li><a href="#">Careers</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Users</h4>
+                    <ul>
+                        <li><a href="#">How it Works</a></li>
+                        <li><a href="#">Safety</a></li>
+                        <li><a href="#">Support</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Artisans</h4>
+                    <ul>
+                        <li><a href="#">Join</a></li>
+                        <li><a href="#">Get Verified</a></li>
+                        <li><a href="#">Pricing</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Legal</h4>
+                    <ul>
+                        <li><a href="#">Terms</a></li>
+                        <li><a href="#">Privacy</a></li>
+                        <li><a href="#">Disputes</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
